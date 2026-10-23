@@ -75,4 +75,14 @@ _J Type (e.g. ```j```, ```jal```)_
 
 So the 32 bits machine code for ```addi $t0, $zero, 3``` is ```00100000000010000000000000000011```
 
+#### ```addi $t1, $zero, 5```
+|opcode|rs|rt|immediate|
+|---|---|---|---|
+|addi|$zero|$t1|5|
+|001000|00000|01001|0000000000000101|
 
+#### ```add  $t2, $t0, $t1```
+|opcode|rs|rt|rd|shamt|funct|
+|---|---|---|---|---|---|
+|add|$t0|$t1|$t2|No shift amount|funct of add|
+|000000|01000|01001|01010|00000|100000|
