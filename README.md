@@ -16,6 +16,7 @@ _R Type (e.g. ```add```, ```sub```)_
 1. rs = first source
 2. rt = second source
 3. rd = destination
+
 |opcode|rs|rt|rd|shamt|funct|
 |---|---|---|---|---|---|
 |6 bits|5 bits|5 bits|5 bits|5 bits|6 bits|
@@ -23,6 +24,7 @@ _R Type (e.g. ```add```, ```sub```)_
 _I Type (e.g. ```addi```, ```lw```, ```sw```)_
 1. rs = first source
 2. rt = destination
+
 |opcode|rs|rt|immediate|
 |---|---|---|---|
 |6 bits|5 bits|5 bits|16 bits|
