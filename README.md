@@ -1,5 +1,5 @@
 # CS240 Assignment5
-## Part 1 Assemble Instructions by Hand
+## Part 1: Assemble Instructions by Hand
 ```
 Convert these MIPS instructions into 32-bit binary machine code by hand:
 addi $t0, $zero, 3
@@ -106,3 +106,43 @@ It is an R type.
 |000000|01001|01000|01011|00000|100010|
 
 So the 32 bits machine code for ```sub  $t3, $t1, $t0``` is ```00000001001010000101100000100010```
+
+## Part 2: Represent Machine Code as Binary Bytes
+
+Using the machine code from Part 1:
+
+1. Show each 32-bit instruction as four 8-bit bytes.
+   
+   __Instruction 1: ```addi $t0, $zero, 3```__
+   
+   32 bits machine code for ```addi $t0, $zero, 3``` is ```00100000000010000000000000000011```
+   
+   |Byte 1|Byte 2|Byte 3|Byte 4|
+   |---|---|---|---|
+   |00100000|00001000|00000000|00000011|
+
+   __Instruction 2: ```addi $t1, $zero, 5```__
+
+   32 bits machine code for ```addi $t1, $zero, 5``` is ```00100000000010010000000000000101```
+   
+   |Byte 1|Byte 2|Byte 3|Byte 4|
+   |---|---|---|---|
+   |00100000|00001001|00000000|00000101|
+
+   __Instruction 3: ```add $t2, $t0, $t1```__
+
+   32 bits machine code for ```add  $t2, $t0, $t1``` is ```00000001000010010101000000100000```
+
+   |Byte 1|Byte 2|Byte 3|Byte 4|
+   |---|---|---|---|
+   |00000001|00001001|01010000|00100000|
+
+   __Instruction 4: ```sub $t3, $t1, $t0```__
+
+   32 bits machine code for ```sub  $t3, $t1, $t0``` is ```00000001001010000101100000100010```
+
+   |Byte 1|Byte 2|Byte 3|Byte 4|
+   |---|---|---|---|
+   |00000001|00101000|01011000|00100010|
+
+   
