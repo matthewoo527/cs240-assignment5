@@ -68,6 +68,8 @@ _J Type (e.g. ```j```, ```jal```)_
 
 ### Converting
 #### ```addi $t0, $zero, 3```
+It is an I type.
+
 |opcode|rs|rt|immediate|
 |---|---|---|---|
 |addi|$zero|$t0|3|
@@ -76,13 +78,31 @@ _J Type (e.g. ```j```, ```jal```)_
 So the 32 bits machine code for ```addi $t0, $zero, 3``` is ```00100000000010000000000000000011```
 
 #### ```addi $t1, $zero, 5```
+It is an I type
+
 |opcode|rs|rt|immediate|
 |---|---|---|---|
 |addi|$zero|$t1|5|
 |001000|00000|01001|0000000000000101|
 
+So the 32 bits machine code for ```addi $t1, $zero, 5``` is ```00100000000010010000000000000101```
+
 #### ```add  $t2, $t0, $t1```
+It is an R type.
+
 |opcode|rs|rt|rd|shamt|funct|
 |---|---|---|---|---|---|
 |add|$t0|$t1|$t2|No shift amount|funct of add|
 |000000|01000|01001|01010|00000|100000|
+
+So the 32 bits machine code for ```add  $t2, $t0, $t1``` is ```00000001000010010101000000100000```
+
+#### ```sub  $t3, $t1, $t0```
+It is an R type.
+
+|opcode|rs|rt|rd|shamt|funct|
+|---|---|---|---|---|---|
+|add|$t1|$t0|$t3|No shift amount|funct of sub|
+|000000|01001|01000|01011|00000|100010|
+
+So the 32 bits machine code for ```sub  $t3, $t1, $t0``` is ```00000001001010000101100000100010```
