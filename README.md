@@ -67,8 +67,12 @@ _J Type (e.g. ```j```, ```jal```)_
 |jal|J|000011|—|
 
 ### Converting
-```addi $t0, $zero, 3```
-|opcode|rs|rt|
-|---|---|---|
-|addi|$zero||
-|001000|00000|00011
+#### ```addi $t0, $zero, 3```
+|opcode|rs|rt|immediate|
+|---|---|---|---|
+|addi|$zero|$t0|3|
+|001000|00000|01000|0000000000000011|
+
+So the 32 bits machine code for ```addi $t0, $zero, 3``` is ```00100000000010000000000000000011```
+
+
