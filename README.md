@@ -216,6 +216,7 @@ Explanation:
 AI Disclosure: I used ChatGPT 6 to learn how to change the professor's code to read an input ```fizzbuzz.asm``` file and output ```fizzbuzz.mhc-ascii``` and ```fizzbuzz.mhc-bin```files. The base/original code is from the professor.
 
 ### Source Code
+[Assembler.java](https://github.com/matthewoo527/cs240-assignment5/blob/main/Assembler.java)
 ```java
 import java.io.DataOutputStream;
 import java.io.File;
