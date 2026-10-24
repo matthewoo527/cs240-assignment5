@@ -894,3 +894,40 @@ I used Hex Editior extension on VS code since normal text editior cannot open a 
 ##### ```fizzbuzz.mhc-bin``` Screenshot
 <img width="656" height="357" alt="Screenshot 2026-10-24 at 16 24 27" src="https://github.com/user-attachments/assets/64c7ddb7-dcd9-4796-a8a2-914e04a0cf4e" />
 
+### Explaination
+#### 1. How It Works
+The assembler is written in Java. 
+It uses Scanner to read my FizzBuzz ASM file and converts the instructions into 32-bit machine code. 
+It uses two passes: the first pass finds labels and their addresses, and the second pass converts the instructions into machine code. 
+It then creates two output files.
+
+#### 2. Supported Features
+The assembler supports instructions such as ```addi```, ```beq```, ```bne```, ```j```, and ```syscall```. 
+It also supports pseudoinstructions like ```li```, ```la```, ```move```, and ```rem```. It can handle labels and data directives such as .text, .data, and .asciiz.
+
+#### 3. File Layout
+* mhc-ascii: Stores machine code as readable 0s and 1s, with 32 bits per instruction. Instructions and data are labeled separately.
+
+* mhc-bin: Stores actual machine-code bytes, with 4 bytes per instruction. It has a 20-byte header, followed by the instructions and data.
+
+The FizzBuzz binary file contains 180 bytes of instructions, 19 bytes of data, and a 20-byte header, totaling 219 bytes.
+
+#### 4. Starting Addresses
+.text = 0x00400000 stores the instructions.
+
+.data = 0x10010000 stores the strings and other data.
+
+The assembler uses these addresses to calculate label locations.
+
+#### 5. Byte Order
+The assembler uses big-endian, meaning the most significant byte comes first. For example, 0x24080001 is stored as 24 08 00 01.
+
+#### 6. Error Handling
+The assembler displays error messages for unsupported instructions, invalid registers, missing labels, and other invalid inputs. It also reports when the ASM file cannot be found.
+
+#### 7. Testing
+I tested my assembler using my FizzBuzz ASM program. 
+It successfully generated both output files. 
+I opened mhc-ascii in a text editor and used Hex Editior extension in VS Code to view mhc-bin in hexadecimal.
+
+## Part 4: Write a Disassembler
