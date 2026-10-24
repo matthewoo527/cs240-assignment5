@@ -787,9 +787,8 @@ public class Assembler {
 01111010
 00000000
 ```
-
-
-
+##### ```fizzbuzz.mhc-ascii``` Screenshot
+<img width="414" height="818" alt="Screenshot 2026-10-24 at 16 16 59" src="https://github.com/user-attachments/assets/3aaa292a-20c8-46c8-b656-10c92798b1d8" />
 
 #### [fizzbuzz.mhc-bin](https://github.com/matthewoo527/cs240-assignment5/blob/main/fizzbuzz.mhc-bin)
 ``` mhc-bin
