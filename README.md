@@ -217,6 +217,499 @@ AI Disclosure: I used ChatGPT 6 to learn how to change the professor's code to r
 
 ### Source Code
 ```java
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
+import java.util.Set;
 
+/*
+ * Simple two-pass MIPS assembler (Java 8+).
+ * Place Assembler.java and FizzBuzz.asm in the same folder.
+ * Run: javac Assembler.java
+ *      java Assembler
+ *
+ * Output: fizzbuzz.mhc-ascii and fizzbuzz.mhc-bin
+ * .text starts at 0x00400000; .data starts at 0x10010000.
+ * Words are stored BIG-ENDIAN. No automatic branch delay slots.
+ *
+ * Instructions: addi, addiu, addu, ori, lui, div, mfhi, sll,
+ *               beq, bne, j, jal, jr, lw, sw, syscall
+ * Pseudoinstructions: li, la, move, rem, nop
+ * Directives: .text, .data, .asciiz, .globl, .global
+ *
+ * Binary format (custom, not ELF):
+ * 4 bytes "MHC1" | text base (4) | text length (4) |
+ * data base (4) | data length (4) | .text bytes | .data bytes
+ * All 4-byte numbers are big-endian.
+ */
+public class Assembler {
+    static final int TEXT_BASE = 0x00400000;
+    static final int DATA_BASE = 0x10010000;
 
+    private static final String[] REGISTER_NAMES = {
+        "zero", "at", "v0", "v1", "a0", "a1", "a2", "a3",
+        "t0", "t1", "t2", "t3", "t4", "t5", "t6", "t7",
+        "s0", "s1", "s2", "s3", "s4", "s5", "s6", "s7",
+        "t8", "t9", "k0", "k1", "gp", "sp", "fp", "ra"
+    };
+
+    static class Instruction {
+        int line, address;
+        String text;
+        Instruction(int line, int address, String text) {
+            this.line = line;
+            this.address = address;
+            this.text = text;
+        }
+    }
+
+    static class Result {
+        byte[] text, data;
+        Result(byte[] text, byte[] data) {
+            this.text = text;
+            this.data = data;
+        }
+    }
+
+    private final Map<String, Integer> labels = new HashMap<>();
+    private final Set<String> textLabels = new HashSet<>();
+    private final List<String> globals = new ArrayList<>();
+    private final List<Instruction> instructions = new ArrayList<>();
+    private final List<Byte> data = new ArrayList<>();
+    private boolean inData = false;
+    private int pc = TEXT_BASE;
+
+    public static void main(String[] args) {
+        try {
+            // 1. Read FizzBuzz.asm from the current folder using Scanner.
+            StringBuilder source = new StringBuilder();
+            try (Scanner input = new Scanner(new File("Woo_Matthew_Old_FizzBuzz.asm"), "UTF-8")) {
+                while (input.hasNextLine()) {
+                    source.append(input.nextLine()).append('\n');
+                }
+            }
+
+            // 2. Assemble the source into instruction bytes and data bytes.
+            Result result = assemble(source.toString());
+
+            // 3. Save both formats.
+            writeAscii(result);
+            writeBinary(result);
+            System.out.println("Created fizzbuzz.mhc-ascii");
+            System.out.println("Created fizzbuzz.mhc-bin");
+        } catch (FileNotFoundException e) {
+            System.err.println("Cannot find FizzBuzz.asm in this folder.");
+        } catch (IOException | IllegalArgumentException e) {
+            System.err.println("Assembly failed: " + e.getMessage());
+        }
+    }
+
+    // Text file: 32 visible 0/1 characters per instruction.
+    // Data is labeled separately and stored as 8 bits per byte.
+    static void writeAscii(Result result) throws IOException {
+        try (PrintWriter out = new PrintWriter("fizzbuzz.mhc-ascii", "UTF-8")) {
+            out.println("# .text base=0x00400000 bytes=" + result.text.length);
+            for (int i = 0; i < result.text.length; i += 4) {
+                for (int j = 0; j < 4; j++) {
+                    out.print(eightBits(result.text[i + j]));
+                }
+                out.println();
+            }
+            out.println("# .data base=0x10010000 bytes=" + result.data.length);
+            for (byte b : result.data) {
+                out.println(eightBits(b));
+            }
+            if (out.checkError()) throw new IOException("Could not write ASCII file.");
+        }
+    }
+
+    static String eightBits(byte value) {
+        String bits = Integer.toBinaryString(value & 255);
+        return "00000000".substring(bits.length()) + bits;
+    }
+
+    // Binary file: 20-byte header followed by actual .text and .data bytes.
+    static void writeBinary(Result result) throws IOException {
+        try (DataOutputStream out = new DataOutputStream(new FileOutputStream("fizzbuzz.mhc-bin"))) {
+            out.writeBytes("MHC1");
+            out.writeInt(TEXT_BASE);
+            out.writeInt(result.text.length);
+            out.writeInt(DATA_BASE);
+            out.writeInt(result.data.length);
+            out.write(result.text);
+            out.write(result.data);
+        }
+    }
+
+    static Result assemble(String source) {
+        Assembler assembler = new Assembler();
+        assembler.firstPass(source);
+        if (assembler.instructions.isEmpty()) fail("No instructions found.");
+        for (String name : assembler.globals) assembler.label(name);
+
+        // Pass 2: encode instructions after labels are known.
+        byte[] text = new byte[assembler.instructions.size() * 4];
+        int index = 0;
+        for (Instruction instruction : assembler.instructions) {
+            try {
+                int word = assembler.encode(instruction);
+                for (int shift = 24; shift >= 0; shift -= 8) {
+                    text[index++] = (byte) (word >>> shift);
+                }
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Line " + instruction.line + ": " + e.getMessage());
+            }
+        }
+        byte[] bytes = new byte[assembler.data.size()];
+        for (int i = 0; i < bytes.length; i++) bytes[i] = assembler.data.get(i);
+        return new Result(text, bytes);
+    }
+
+    // Pass 1: expand pseudos BEFORE calculating following label addresses.
+    private void firstPass(String source) {
+        if (source.startsWith("\uFEFF")) source = source.substring(1);
+        String[] lines = source.split("\\r\\n|\\r|\\n");
+        for (int i = 0; i < lines.length; i++) {
+            try {
+                String text = withoutComment(lines[i]).trim();
+                while (true) {
+                    int colon = text.indexOf(':');
+                    if (colon < 0) break;
+                    String name = text.substring(0, colon).trim();
+                    if (!name.matches("[A-Za-z_][A-Za-z0-9_]*")) break;
+                    if (labels.containsKey(name)) fail("Duplicate label: " + name);
+                    labels.put(name, inData ? DATA_BASE + data.size() : pc);
+                    if (!inData) textLabels.add(name);
+                    text = text.substring(colon + 1).trim();
+                }
+                if (text.isEmpty()) continue;
+                if (text.startsWith(".")) {
+                    directive(text);
+                } else {
+                    if (inData) fail("Instructions must be in .text.");
+                    expand(text, i + 1);
+                }
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Line " + (i + 1) + ": " + e.getMessage());
+            }
+        }
+    }
+
+    private void directive(String text) {
+        String[] p = text.split("\\s+", 2);
+        String value = p.length == 2 ? p[1].trim() : "";
+        switch (p[0]) {
+            case ".text":
+            case ".data":
+                boolean nextData = p[0].equals(".data");
+                int base = nextData ? DATA_BASE : TEXT_BASE;
+                if (!value.isEmpty()) {
+                    if (number(value) != base) fail("Only the default segment base is supported.");
+                    if (nextData ? !data.isEmpty() : !instructions.isEmpty()) {
+                        fail("Explicit segment address must precede its contents.");
+                    }
+                }
+                inData = nextData;
+                break;
+            case ".globl":
+            case ".global":
+                if (!value.matches("[A-Za-z_][A-Za-z0-9_]*")) fail("Expected one global label.");
+                globals.add(value);
+                break;
+            case ".asciiz":
+                if (!inData) fail(".asciiz must be in .data.");
+                String decoded = quoted(value, '"');
+                for (int i = 0; i < decoded.length(); i++) data.add((byte) decoded.charAt(i));
+                data.add((byte) 0);
+                break;
+            default:
+                fail("Unsupported directive: " + p[0]);
+        }
+    }
+
+    private void emit(String text, int line) {
+        instructions.add(new Instruction(line, pc, text));
+        pc += 4;
+    }
+
+    private void loadImmediate(String register, int value, int line) {
+        reg(register);
+        if (value >= -32768 && value <= 32767) {
+            emit("addiu " + register + ", $zero, " + value, line);
+        } else if (value >= 0 && value <= 65535) {
+            emit("ori " + register + ", $zero, " + value, line);
+        } else {
+            emit("lui " + register + ", " + (value >>> 16), line);
+            emit("ori " + register + ", " + register + ", " + (value & 65535), line);
+        }
+    }
+
+    private void expand(String text, int line) {
+        String[] p = text.split("\\s+", 2);
+        String op = lowerAscii(p[0]);
+        String[] a = operands(p);
+        switch (op) {
+            case "li":
+                count(a, 2);
+                loadImmediate(a[0], number(a[1]), line);
+                break;
+            case "la":
+                count(a, 2);
+                reg(a[0]);
+                if (!a[1].matches("[A-Za-z_][A-Za-z0-9_]*")) fail("la expects a label.");
+                emit("lui " + a[0] + ", hi(" + a[1] + ")", line);
+                emit("ori " + a[0] + ", " + a[0] + ", lo(" + a[1] + ")", line);
+                break;
+            case "move":
+                count(a, 2);
+                emit("addu " + a[0] + ", " + a[1] + ", $zero", line);
+                break;
+            case "rem":
+                count(a, 3);
+                if (reg(a[0]) == 1 || reg(a[1]) == 1) fail("rem reserves $at.");
+                int divisor = number(a[2]);
+                if (divisor == 0) fail("rem divisor cannot be zero.");
+                loadImmediate("$at", divisor, line);
+                emit("div " + a[1] + ", $at", line);
+                emit("mfhi " + a[0], line);
+                break;
+            case "nop":
+                count(a, 0);
+                emit("sll $zero, $zero, 0", line);
+                break;
+            default:
+                emit(text, line);
+        }
+    }
+
+    private int encode(Instruction instruction) {
+        String[] p = instruction.text.split("\\s+", 2);
+        String op = lowerAscii(p[0]);
+        String[] a = operands(p);
+        switch (op) {
+            case "addi":
+            case "addiu":
+            case "ori":
+                count(a, 3);
+                int immediate = value(a[2]);
+                range(immediate, op.equals("ori") ? 0 : -32768,
+                                 op.equals("ori") ? 65535 : 32767);
+                return iType(op.equals("addi") ? 8 : op.equals("addiu") ? 9 : 13,
+                             reg(a[1]), reg(a[0]), immediate);
+            case "lui":
+                count(a, 2);
+                return iType(15, 0, reg(a[0]), range(value(a[1]), 0, 65535));
+            case "addu":
+                count(a, 3);
+                return rType(reg(a[1]), reg(a[2]), reg(a[0]), 0, 0x21);
+            case "div":
+                count(a, 2);
+                return rType(reg(a[0]), reg(a[1]), 0, 0, 0x1A);
+            case "mfhi":
+                count(a, 1);
+                return rType(0, 0, reg(a[0]), 0, 0x10);
+            case "sll":
+                count(a, 3);
+                return rType(0, reg(a[1]), reg(a[0]), range(number(a[2]), 0, 31), 0);
+            case "beq":
+            case "bne":
+                count(a, 3);
+                int offset = (codeLabel(a[2]) - (instruction.address + 4)) / 4;
+                return iType(op.equals("beq") ? 4 : 5, reg(a[0]), reg(a[1]),
+                             range(offset, -32768, 32767));
+            case "j":
+            case "jal":
+                count(a, 1);
+                int target = codeLabel(a[0]);
+                if ((target & 0xF0000000) != ((instruction.address + 4) & 0xF0000000)) {
+                    fail("Jump target is out of range.");
+                }
+                return ((op.equals("j") ? 2 : 3) << 26) | ((target >>> 2) & 0x03FFFFFF);
+            case "jr":
+                count(a, 1);
+                return rType(reg(a[0]), 0, 0, 0, 8);
+            case "lw":
+            case "sw":
+                count(a, 2);
+                String memory = a[1].replaceAll("\\s+", "");
+                if (!memory.matches("[^()]+\\(\\$[A-Za-z0-9]+\\)")) {
+                    fail("Expected offset($register): " + a[1]);
+                }
+                int left = memory.indexOf('(');
+                int base = reg(memory.substring(left + 1, memory.length() - 1));
+                int displacement = range(number(memory.substring(0, left)), -32768, 32767);
+                return iType(op.equals("lw") ? 35 : 43, base, reg(a[0]), displacement);
+            case "syscall":
+                count(a, 0);
+                return 0x0000000C;
+            default:
+                throw new IllegalArgumentException("Unsupported instruction: " + op);
+        }
+    }
+
+    // R: opcode(6), rs(5), rt(5), rd(5), shamt(5), funct(6).
+    private static int rType(int rs, int rt, int rd, int shift, int function) {
+        return (rs << 21) | (rt << 16) | (rd << 11) | (shift << 6) | function;
+    }
+
+    // I: opcode(6), rs(5), rt(5), immediate(16).
+    private static int iType(int opcode, int rs, int rt, int immediate) {
+        return (opcode << 26) | (rs << 21) | (rt << 16) | (immediate & 0xFFFF);
+    }
+
+    private int label(String name) {
+        Integer result = labels.get(name);
+        if (result == null) fail("Undefined label: " + name);
+        return result;
+    }
+
+    private int codeLabel(String name) {
+        int address = label(name);
+        if (!textLabels.contains(name)) fail("Branch/jump target is not in .text: " + name);
+        return address;
+    }
+
+    private int value(String text) {
+        if (text.startsWith("hi(") && text.endsWith(")")) {
+            return label(text.substring(3, text.length() - 1)) >>> 16;
+        }
+        if (text.startsWith("lo(") && text.endsWith(")")) {
+            return label(text.substring(3, text.length() - 1)) & 65535;
+        }
+        return number(text);
+    }
+
+    private static int reg(String name) {
+        name = lowerAscii(name.trim());
+        if (name.equals("$s8")) return 30;
+        for (int i = 0; i < REGISTER_NAMES.length; i++) {
+            if (name.equals("$" + REGISTER_NAMES[i]) || name.equals("$" + i)) return i;
+        }
+        throw new IllegalArgumentException("Unknown register: " + name);
+    }
+
+    private static int number(String text) {
+        text = text.trim();
+        if (text.startsWith("'")) {
+            String character = quoted(text, '\'');
+            if (character.length() != 1) fail("Expected one character: " + text);
+            return character.charAt(0);
+        }
+        try {
+            boolean negative = text.startsWith("-");
+            String digits = text;
+            if (digits.startsWith("-") || digits.startsWith("+")) digits = digits.substring(1);
+            int radix = 10;
+            if (digits.startsWith("0x") || digits.startsWith("0X")) {
+                radix = 16;
+                digits = digits.substring(2);
+            } else if (digits.startsWith("0b") || digits.startsWith("0B")) {
+                radix = 2;
+                digits = digits.substring(2);
+            }
+            if (digits.isEmpty() || digits.startsWith("-") || digits.startsWith("+")) {
+                fail("Invalid integer: " + text);
+            }
+            long result = Long.parseLong(digits, radix);
+            if (negative) result = -result;
+            if (result < Integer.MIN_VALUE || result > 0xFFFFFFFFL) fail("Integer too large: " + text);
+            return (int) result;
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Invalid integer: " + text);
+        }
+    }
+
+    // Keep # inside quoted strings or character literals.
+    private static String withoutComment(String text) {
+        char quote = 0;
+        for (int i = 0; i < text.length(); i++) {
+            char c = text.charAt(i);
+            if (quote != 0) {
+                if (c == '\\') i++;
+                else if (c == quote) quote = 0;
+            } else if (c == '"' || c == '\'') {
+                quote = c;
+            } else if (c == '#') {
+                return text.substring(0, i);
+            }
+        }
+        if (quote != 0) fail("Unclosed quote.");
+        return text;
+    }
+
+    private static String quoted(String text, char quote) {
+        if (text.length() < 2 || text.charAt(0) != quote
+                || text.charAt(text.length() - 1) != quote) fail("Expected quoted literal: " + text);
+        StringBuilder decoded = new StringBuilder();
+        for (int i = 1; i < text.length() - 1; i++) {
+            char c = text.charAt(i);
+            if (c == quote) fail("Unexpected quote: " + text);
+            if (c == '\\') {
+                if (++i >= text.length() - 1) fail("Incomplete escape.");
+                switch (text.charAt(i)) {
+                    case 'n': c = '\n'; break;
+                    case 'r': c = '\r'; break;
+                    case 't': c = '\t'; break;
+                    case '0': c = 0; break;
+                    case '\\': c = '\\'; break;
+                    case '\'': c = '\''; break;
+                    case '"': c = '"'; break;
+                    default: fail("Unsupported escape: \\" + text.charAt(i));
+                }
+            }
+            if (c > 127) fail("This toy assembler accepts ASCII literals only.");
+            decoded.append(c);
+        }
+        return decoded.toString();
+    }
+
+    private static String[] operands(String[] p) {
+        if (p.length == 1 || p[1].trim().isEmpty()) return new String[0];
+        // Split commas outside quotes so li $a0, ',' also works.
+        List<String> result = new ArrayList<>();
+        char quote = 0;
+        int start = 0;
+        for (int i = 0; i < p[1].length(); i++) {
+            char c = p[1].charAt(i);
+            if (quote != 0) {
+                if (c == '\\') i++;
+                else if (c == quote) quote = 0;
+            } else if (c == '\'' || c == '"') {
+                quote = c;
+            } else if (c == ',') {
+                result.add(p[1].substring(start, i).trim());
+                start = i + 1;
+            }
+        }
+        result.add(p[1].substring(start).trim());
+        return result.toArray(new String[0]);
+    }
+
+    private static void count(String[] a, int expected) {
+        if (a.length != expected) fail("Expected " + expected + " comma-separated operand(s).");
+        for (String operand : a) if (operand.isEmpty()) fail("Empty operand.");
+    }
+
+    private static int range(int value, int min, int max) {
+        if (value < min || value > max) fail("Value out of range: " + value);
+        return value;
+    }
+
+    private static void fail(String message) {
+        throw new IllegalArgumentException(message);
+    }
+
+    private static String lowerAscii(String text) {
+        return text.toLowerCase(java.util.Locale.ROOT);
+    }
+}
 ```
