@@ -118,7 +118,7 @@ So the 32 bits machine code for ```sub  $t3, $t1, $t0``` is ```00000001001010000
 
 Using the machine code from Part 1:
 
-1. Show each 32-bit instruction as four 8-bit bytes.
+### 1. Show each 32-bit instruction as four 8-bit bytes.
    
    __Instruction 1: ```addi $t0, $zero, 3```__
    
@@ -152,7 +152,7 @@ Using the machine code from Part 1:
    |---|---|---|---|
    |00000001|00101000|01011000|00100010|
 
-2. Show each byte in hexadecimal.
+### 2. Show each byte in hexadecimal.
    
    __Instruction 1: ```addi $t0, $zero, 3```__
    
@@ -198,7 +198,7 @@ Using the machine code from Part 1:
 
    Hexadecimal: 0x01285822
 
-3. Explain how the two output formats differ:
+### 3. Explain how the two output formats differ:
   
    ```mhc-ascii```: A text file containing readable 0 and 1 characters.
 
