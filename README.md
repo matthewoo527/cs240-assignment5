@@ -791,6 +791,25 @@ public class Assembler {
 <img width="414" height="818" alt="Screenshot 2026-10-24 at 16 16 59" src="https://github.com/user-attachments/assets/3aaa292a-20c8-46c8-b656-10c92798b1d8" />
 
 #### [fizzbuzz.mhc-bin](https://github.com/matthewoo527/cs240-assignment5/blob/main/fizzbuzz.mhc-bin)
-``` mhc-bin
 
+I used Hex Editior extension on VS code since normal text editior cannot open a binary file.
+``` mhc-bin
+00000000  4d 48 43 31 00 40 00 00  00 00 00 b4 10 01 00 00  |MHC1.@..........|
+00000010  00 00 00 13 24 08 00 01  24 09 00 65 08 10 00 06  |....$...$..e....|
+00000020  21 08 00 01 15 09 ff fd  08 10 00 2b 24 01 00 03  |!..........+$...|
+00000030  01 01 00 1a 00 00 50 10  24 01 00 05 01 01 00 1a  |......P.$.......|
+00000040  00 00 58 10 11 40 00 02  11 60 00 11 08 10 00 12  |..X..@...`......|
+00000050  11 60 00 15 08 10 00 19  08 10 00 03 24 02 00 01  |.`..........$...|
+00000060  01 00 20 21 00 00 00 0c  24 02 00 0b 24 04 00 0a  |.. !....$...$...|
+00000070  00 00 00 0c 08 10 00 11  24 02 00 04 3c 04 10 01  |........$...<...|
+00000080  34 84 00 00 00 00 00 0c  08 10 00 1e 08 10 00 15  |4...............|
+00000090  24 02 00 04 3c 04 10 01  34 84 00 05 00 00 00 0c  |$...<...4.......|
+000000a0  08 10 00 24 08 10 00 15  24 02 00 04 3c 04 10 01  |...$....$...<...|
+000000b0  34 84 00 0a 00 00 00 0c  08 10 00 2a 08 10 00 15  |4..........*....|
+000000c0  24 02 00 0a 00 00 00 0c  46 69 7a 7a 00 42 75 7a  |$.......Fizz.Buz|
+000000d0  7a 00 46 69 7a 7a 42 75  7a 7a 00                 |z.FizzBuzz.|
+000000db
 ```
+##### ```fizzbuzz.mhc-bin``` Screenshot
+<img width="656" height="357" alt="Screenshot 2026-10-24 at 16 24 27" src="https://github.com/user-attachments/assets/64c7ddb7-dcd9-4796-a8a2-914e04a0cf4e" />
+
