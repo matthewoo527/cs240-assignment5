@@ -931,3 +931,10 @@ It successfully generated both output files.
 I opened mhc-ascii in a text editor and used Hex Editior extension in VS Code to view mhc-bin in hexadecimal.
 
 ## Part 4: Write a Disassembler
+AI Disclosure: I used ChatGPT 6 to learn how to build a disassembler. 
+It also helped me to build a disassembler, and I understand the code by read and type the code that it produces.
+
+### Source Code
+``` java
+
+```
