@@ -145,4 +145,48 @@ Using the machine code from Part 1:
    |---|---|---|---|
    |00000001|00101000|01011000|00100010|
 
+2. Show each byte in hexadecimal.
    
+   __Instruction 1: ```addi $t0, $zero, 3```__
+   
+   32 bits machine code for ```addi $t0, $zero, 3``` is ```00100000000010000000000000000011```
+   
+   ||Byte 1|Byte 2|Byte 3|Byte 4|
+   |---|---|---|---|---|
+   |Binary|00100000|00001000|00000000|00000011|
+   |Hexadecimal|20|08|00|03|
+
+   Hexadecimal: 0x20080003
+
+   __Instruction 2: ```addi $t1, $zero, 5```__
+
+   32 bits machine code for ```addi $t1, $zero, 5``` is ```00100000000010010000000000000101```
+   
+   ||Byte 1|Byte 2|Byte 3|Byte 4|
+   |---|---|---|---|---|
+   |Binary|00100000|00001001|00000000|00000101|
+   |Hexadecimal|20|09|00|05|
+
+   Hexadecimal: 0x20090005
+
+   __Instruction 3: ```add $t2, $t0, $t1```__
+
+   32 bits machine code for ```add  $t2, $t0, $t1``` is ```00000001000010010101000000100000```
+
+   ||Byte 1|Byte 2|Byte 3|Byte 4|
+   |---|---|---|---|---|
+   |Binary|00000001|00001001|01010000|00100000|
+   |Hexadecimal|01|09|50|20|
+
+   Hexadecimal: 0x01095020
+
+   __Instruction 4: ```sub $t3, $t1, $t0```__
+
+   32 bits machine code for ```sub  $t3, $t1, $t0``` is ```00000001001010000101100000100010```
+
+   ||Byte 1|Byte 2|Byte 3|Byte 4|
+   |---|---|---|---|---|
+   |Binary|00000001|00101000|01011000|00100010|
+   |Hexadecimal|01|28|58|22|
+
+   Hexadecimal: 0x01285822
