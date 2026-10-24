@@ -190,3 +190,13 @@ Using the machine code from Part 1:
    |Hexadecimal|01|28|58|22|
 
    Hexadecimal: 0x01285822
+
+3. Explain how the two output formats differ:
+  
+   ```mhc-ascii```: A text file containing readable 0 and 1 characters.
+
+   ```mhc-bin```: A binary file containing the actual machine-code bytes.
+
+   A 32-bit instruction requires 32 text characters in ```mhc-ascii```, excluding spaces and line breaks, but only four bytes in ```mhc-bin```.
+
+   
