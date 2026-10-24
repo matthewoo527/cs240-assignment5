@@ -213,9 +213,8 @@ Explanation:
    ```mhc-bin``` stores the actual machine-code bytes instead of text characters. It stores every 8 bits as 1 byte, so it will only need 4 bytes for a 32-bit instruction. We can use hexadecimal to represent these bytes.
 
 ## Part 3: Write an Assembler
-```
 AI Disclosure: I used ChatGPT 6 to learn how to change the professor's code to read an input ```fizzbuzz.asm``` file and output ```fizzbuzz.mhc-ascii``` and ```fizzbuzz.mhc-bin```files. The base/original code is from the professor.
-```
+
 ### Source Code
 ```java
 
