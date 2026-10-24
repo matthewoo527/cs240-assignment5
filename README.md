@@ -714,10 +714,10 @@ public class Assembler {
 }
 ```
 ### Input File: My FizzBuzz program from the last assignment
-_Woo_Matthew_Old_FizzBuzz.asm_
+[_Woo_Matthew_Old_FizzBuzz.asm_](https://github.com/matthewoo527/cs240-assignment5/blob/main/Woo_Matthew_Old_FizzBuzz.asm)
 
 ### Output File
-#### fizzbuzz.mhc-ascii
+#### [fizzbuzz.mhc-ascii](https://github.com/matthewoo527/cs240-assignment5/blob/main/fizzbuzz.mhc-ascii)
 ``` mhc-ascii
 
 ```
@@ -725,7 +725,7 @@ _Woo_Matthew_Old_FizzBuzz.asm_
 
 
 
-#### fizzbuzz.mhc-bin
+#### [fizzbuzz.mhc-bin](https://github.com/matthewoo527/cs240-assignment5/blob/main/fizzbuzz.mhc-bin)
 ``` mhc-bin
 
 ```
