@@ -211,3 +211,10 @@ Explanation:
    ```mhc-ascii``` only stores ```0``` and ```1```. Since each MIPS instruction is 32 bits, it will have 32 ```0```s and ```1```s per instruction and 32 text characters for each instruction.
 
    ```mhc-bin``` stores the actual machine-code bytes instead of text characters. It stores every 8 bits as 1 byte, so it will only need 4 bytes for a 32-bit instruction. We can use hexadecimal to represent these bytes.
+
+## Part 3: Write an Assembler
+### Source Code
+```java
+
+
+```
