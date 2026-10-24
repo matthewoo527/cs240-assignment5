@@ -1,4 +1,11 @@
 # CS240 Assignment5
+
+Author: Matthew Woo
+
+Date: Oct 23, 2026
+
+GitHub Repo: https://github.com/matthewoo527/cs240-assignment5/
+
 ## Part 1: Assemble Instructions by Hand
 ```
 Convert these MIPS instructions into 32-bit binary machine code by hand:
