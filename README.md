@@ -935,7 +935,7 @@ AI Disclosure: I used ChatGPT 6 to learn how to build a disassembler.
 It also helped me to build a disassembler, and I understand the code by read and type the code that it produces.
 
 ### Source Code
-_[Disassembler.java]_(https://github.com/matthewoo527/cs240-assignment5/blob/main/Disassembler.java)
+[_Disassembler.java_](https://github.com/matthewoo527/cs240-assignment5/blob/main/Disassembler.java)
 ``` java
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
