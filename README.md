@@ -1542,7 +1542,8 @@ Buzz
 -- program is finished running --
 ```
 
-##### Compare to the Output of Woo_Matthew_Old_FizzBuzz.asm
+### Compare to the Output of Woo_Matthew_Old_FizzBuzz.asm
+It has the same output as ```Reconstructed-ascii.asm``` and ```Reconstructed-bin.asm```
 ```
 1
 2
