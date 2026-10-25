@@ -1208,7 +1208,7 @@ and I renamed it ```Reconstructed-ascii.asm```
 
 Then I run ```java Disassembler fizzbuzz.mhc-bin``` in VS Code and I renamed ```Reconstructed.asm``` to ```Reconstructed-bin.asm```
 
-#### Reconstructed-ascii.asm
+#### [Reconstructed-ascii.asm](https://github.com/matthewoo527/cs240-assignment5/blob/main/Reconstructed-ascii.asm)
 ```asm
 .data
 data_0: .asciiz "Fizz"
@@ -1381,7 +1381,7 @@ Buzz
 -- program is finished running --
 ```
 
-#### Reconstructed-bin.asm
+#### [Reconstructed-bin.asm](https://github.com/matthewoo527/cs240-assignment5/blob/main/Reconstructed-bin.asm)
 Then I run ```java Disassembler fizzbuzz.mhc-bin``` in VS Code and I renamed ```Reconstructed.asm``` to ```Reconstructed-bin.asm```
 
 ```asm
