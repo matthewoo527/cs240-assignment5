@@ -215,6 +215,9 @@ Explanation:
 ## Part 3: Write an Assembler
 AI Disclosure: I used ChatGPT 6 to learn how to change the professor's code to read an input ```fizzbuzz.asm``` file and output ```fizzbuzz.mhc-ascii``` and ```fizzbuzz.mhc-bin```files. The base/original code is from the professor.
 
+### How to run?
+Put the fizzbizz.asm program in the same folder as ```Assembler.java```, make sure the file name of fizzbuzz.asm is the same as the file name stated in the Assembler.java. In my case, I used the name ```Woo_Matthew_Old_FizzBuzz.asm`
+
 ### Source Code
 [Assembler.java](https://github.com/matthewoo527/cs240-assignment5/blob/main/Assembler.java)
 ```java
@@ -934,6 +937,15 @@ I opened mhc-ascii in a text editor and used Hex Editior extension in VS Code to
 AI Disclosure: I used ChatGPT 6 to learn how to build a disassembler. 
 It also helped me to build a disassembler, and I understand the code by read and type the code that it produces.
 
+### How to run?
+This program will produce a file called ```Reconstructed.asm``` no matter what input it was. 
+Make sure to rename the output file when it run the second time because the new output file will have the same file name and will replace the old file.
+
+I first run ```java Disassembler fizzbuzz.mhc-ascii``` in VS Code, it will produce a file called ```Reconstructed.asm``` 
+and I renamed it ```Reconstructed-ascii.asm```
+
+
+
 ### Source Code
 [_Disassembler.java_](https://github.com/matthewoo527/cs240-assignment5/blob/main/Disassembler.java)
 ``` java
@@ -1190,8 +1202,11 @@ public class Disassembler {
 ```
 ### Output
 The program will disassemble the machine code and produce a file called ```Reconstructed.asm```.
+
 I first run ```java Disassembler fizzbuzz.mhc-ascii``` in VS Code, it will produce a file called ```Reconstructed.asm``` 
 and I renamed it ```Reconstructed-ascii.asm```
+
+Then I run ```java Disassembler fizzbuzz.mhc-bin``` in VS Code and I renamed ```Reconstructed.asm``` to ```Reconstructed-bin.asm```
 
 #### Reconstructed-ascii.asm
 ```asm
